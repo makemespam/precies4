@@ -56,7 +56,7 @@
 </head>
 <body>
 
-<h1>Connections Game</h1>
+<h1>Precies 4 Pats</h1>
 <div id="grid"></div>
 
 <button id="submit">Submit</button>
@@ -151,7 +151,7 @@
       submitBtn.disabled = true;
       resetBtn.style.display = "inline";
     } else if (mistakes >= maxMistakes) {
-      status.textContent = "😢 Te veel fouten! De juiste groepen waren:";
+      status.textContent = "😢 Te veel fouten!";
       showSolutions();
       submitBtn.disabled = true;
       resetBtn.style.display = "inline";
@@ -159,15 +159,30 @@
   };
 
   function showSolutions() {
-    document.querySelectorAll(".word").forEach(el => {
-      const groupId = solutionMap[el.textContent];
-      if (!foundGroups.has(groupId)) {
-        el.classList.remove("selected");
-        el.classList.add("correct");
-        el.onclick = null;
-      }
-    });
-  }
+  const container = document.createElement("div");
+  container.style.marginTop = "1em";
+  container.style.textAlign = "center";
+  container.innerHTML = "<h3>De juiste groepen waren:</h3>";
+
+  groups.forEach(group => {
+    const groupDiv = document.createElement("div");
+    groupDiv.style.marginBottom = "0.5em";
+    groupDiv.innerHTML = `<strong>${group.name}:</strong> ${group.words.join(", ")}`;
+    container.appendChild(groupDiv);
+  });
+
+  status.appendChild(container);
+
+  document.querySelectorAll(".word").forEach(el => {
+    const groupId = solutionMap[el.textContent];
+    if (!foundGroups.has(groupId)) {
+      el.classList.remove("selected");
+      el.classList.add("correct");
+      el.onclick = null;
+    }
+  });
+}
+
 
   resetBtn.onclick = () => {
     foundGroups.clear();

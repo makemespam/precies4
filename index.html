@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Connections Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+      padding: 2em;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 0.5em;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 10px;
+      max-width: 400px;
+      margin: 0 auto 1em;
+    }
+    .word {
+      background-color: white;
+      border: 2px solid #ccc;
+      padding: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s;
+    }
+    .word.selected {
+      background-color: #333;
+      color: white;
+      border-color: #999;
+    }
+    .word.correct {
+      background-color: #2ecc71;
+      color: white;
+      pointer-events: none;
+    }
+    .word.wrong {
+      background-color: #e74c3c;
+      color: white;
+    }
+    #submit, #reset {
+      margin-top: 1em;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 1em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Connections Game</h1>
+<div id="grid"></div>
+
+<button id="submit">Submit</button>
+<button id="reset" style="display:none;">Reset Game</button>
+
+<div id="status"></div>
+
+<script>
+  // Hardcoded groepen
+  const groups = [
+    { name: "GTST", words: ["alberts", "elschot", "hafkamp", "sanders"] },
+    { name: "Racers", words: ["albers", "doornbos", "garde", "vries"] },
+    { name: "Chino", words: ["baby", "bamboe", "haver", "mokka"] },
+    { name: "Eigendom", words: ["bezit", "erf", "goed", "have"] }
+  ];
+
+  const allWords = groups.flatMap(g => g.words);
+  const solutionMap = {};
+  groups.forEach((group, i) => {
+    group.words.forEach(word => solutionMap[word] = i);
+  });
+
+  let shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
+  let foundGroups = new Set();
+  let selected = [];
+  let mistakes = 0;
+  const maxMistakes = 5;
+
+  const grid = document.getElementById("grid");
+  const status = document.getElementById("status");
+  const submitBtn = document.getElementById("submit");
+  const resetBtn = document.getElementById("reset");
+
+  function renderGrid() {
+    grid.innerHTML = "";
+    shuffledWords.forEach(word => {
+      const div = document.createElement("div");
+      div.className = "word";
+      div.textContent = word;
+      div.onclick = () => toggleSelect(word, div);
+      grid.appendChild(div);
+    });
+  }
+
+  function toggleSelect(word, element) {
+    if (selected.includes(word)) {
+      selected = selected.filter(w => w !== word);
+      element.classList.remove("selected");
+    } else {
+      if (selected.length < 4) {
+        selected.push(word);
+        element.classList.add("selected");
+      }
+    }
+  }
+
+  submitBtn.onclick = () => {
+    if (selected.length !== 4) {
+      status.textContent = "Selecteer precies vier woorden.";
+      return;
+    }
+
+    const groupIds = selected.map(word => solutionMap[word]);
+    const allSame = groupIds.every(id => id === groupIds[0]);
+
+    if (allSame && !foundGroups.has(groupIds[0])) {
+      foundGroups.add(groupIds[0]);
+      document.querySelectorAll(".word").forEach(el => {
+        if (selected.includes(el.textContent)) {
+          el.classList.remove("selected");
+          el.classList.add("correct");
+          el.onclick = null;
+        }
+      });
+      status.textContent = `Goed gevonden! Groep: ${groups[groupIds[0]].name}`;
+    } else {
+      mistakes++;
+      document.querySelectorAll(".word").forEach(el => {
+        if (selected.includes(el.textContent)) {
+          el.classList.add("wrong");
+          setTimeout(() => el.classList.remove("wrong"), 800);
+        }
+      });
+      status.textContent = `Fout! Aantal fouten: ${mistakes} / ${maxMistakes}`;
+    }
+
+    selected = [];
+    document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+
+    if (foundGroups.size === 4) {
+      status.textContent = "🎉 Gefeliciteerd! Je hebt alles gevonden!";
+      submitBtn.disabled = true;
+      resetBtn.style.display = "inline";
+    } else if (mistakes >= maxMistakes) {
+      status.textContent = "😢 Te veel fouten! De juiste groepen waren:";
+      showSolutions();
+      submitBtn.disabled = true;
+      resetBtn.style.display = "inline";
+    }
+  };
+
+  function showSolutions() {
+    document.querySelectorAll(".word").forEach(el => {
+      const groupId = solutionMap[el.textContent];
+      if (!foundGroups.has(groupId)) {
+        el.classList.remove("selected");
+        el.classList.add("correct");
+        el.onclick = null;
+      }
+    });
+  }
+
+  resetBtn.onclick = () => {
+    foundGroups.clear();
+    mistakes = 0;
+    selected = [];
+    shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
+    submitBtn.disabled = false;
+    resetBtn.style.display = "none";
+    status.textContent = "";
+    renderGrid();
+  };
+
+  renderGrid();
+</script>
+
+</body>
+</html>

@@ -65,8 +65,23 @@
 <div id="status"></div>
 
 <script>
-  // Hardcoded groepen
-  const groups = [
+  // Haal ?game=... uit de URL
+  function parseGameFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("game")) {
+      try {
+        const raw = atob(decodeURIComponent(params.get("game")));
+        return JSON.parse(raw);
+      } catch (e) {
+        alert("Kon het spel niet laden. Link is ongeldig of beschadigd.");
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Gebruik data uit URL of fallback naar hardcoded testdata
+  const groups = parseGameFromURL() || [
     { name: "GTST", words: ["alberts", "elschot", "hafkamp", "sanders"] },
     { name: "Racers", words: ["albers", "doornbos", "garde", "vries"] },
     { name: "Chino", words: ["baby", "bamboe", "haver", "mokka"] },

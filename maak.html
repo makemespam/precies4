@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Precies 4 - Maak je eigen puzzel</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 2em auto;
+      padding: 1em;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1em;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5em;
+      margin-bottom: 0.3em;
+      box-sizing: border-box;
+    }
+    .groep {
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin-top: 1em;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 2em;
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 2em;
+      background: #f4f4f4;
+      padding: 1em;
+      border-radius: 6px;
+      word-wrap: break-word;
+    }
+    code {
+      font-family: monospace;
+      background: #eee;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Precies 4 – Maak je eigen puzzel</h1>
+
+<form id="maakForm">
+  <div class="groep">
+    <label>Groep 1 naam</label>
+    <input type="text" name="groep1_naam" value="GTST">
+    <input type="text" name="groep1[]" placeholder="Woord 1">
+    <input type="text" name="groep1[]" placeholder="Woord 2">
+    <input type="text" name="groep1[]" placeholder="Woord 3">
+    <input type="text" name="groep1[]" placeholder="Woord 4">
+  </div>
+
+  <div class="groep">
+    <label>Groep 2 naam</label>
+    <input type="text" name="groep2_naam" value="Racers">
+    <input type="text" name="groep2[]" placeholder="Woord 1">
+    <input type="text" name="groep2[]" placeholder="Woord 2">
+    <input type="text" name="groep2[]" placeholder="Woord 3">
+    <input type="text" name="groep2[]" placeholder="Woord 4">
+  </div>
+
+  <div class="groep">
+    <label>Groep 3 naam</label>
+    <input type="text" name="groep3_naam" value="Chino">
+    <input type="text" name="groep3[]" placeholder="Woord 1">
+    <input type="text" name="groep3[]" placeholder="Woord 2">
+    <input type="text" name="groep3[]" placeholder="Woord 3">
+    <input type="text" name="groep3[]" placeholder="Woord 4">
+  </div>
+
+  <div class="groep">
+    <label>Groep 4 naam</label>
+    <input type="text" name="groep4_naam" value="Eigendom">
+    <input type="text" name="groep4[]" placeholder="Woord 1">
+    <input type="text" name="groep4[]" placeholder="Woord 2">
+    <input type="text" name="groep4[]" placeholder="Woord 3">
+    <input type="text" name="groep4[]" placeholder="Woord 4">
+  </div>
+
+  <button type="submit">Genereer spel</button>
+</form>
+
+<div id="output" style="display:none;">
+  Deel deze link:<br>
+  <code id="link"></code>
+</div>
+
+<script>
+  document.getElementById("maakForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const groepen = [];
+
+    for (let i = 1; i <= 4; i++) {
+      const naam = form[`groep${i}_naam`].value.trim();
+      const woorden = Array.from(form.querySelectorAll(`[name="groep${i}[]"]`))
+        .map(input => input.value.trim().toLowerCase())
+        .filter(w => w.length > 0);
+
+      if (woorden.length !== 4) {
+        alert(`Groep ${i} moet precies 4 woorden bevatten.`);
+        return;
+      }
+
+      groepen.push({ name: naam || `Groep ${i}`, words: woorden });
+    }
+
+    const json = JSON.stringify(groepen);
+    const encoded = encodeURIComponent(btoa(json));
+    const link = `${location.origin}/precies4/index.html?game=${encoded}`;
+
+    document.getElementById("link").textContent = link;
+    document.getElementById("output").style.display = "block";
+  });
+</script>
+
+</body>
+</html>

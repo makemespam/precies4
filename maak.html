@@ -123,7 +123,8 @@
 
     const json = JSON.stringify(groepen);
     const encoded = encodeURIComponent(btoa(json));
-    const link = `${location.origin}/precies4/index.html?game=${encoded}`;
+    const path = location.pathname.replace(/\/[^\/]*$/, ''); // haalt '/maak.html' weg
+    const link = `${location.origin}${path}/index.html?game=${encoded}`;
 
     document.getElementById("link").textContent = link;
     document.getElementById("output").style.display = "block";

@@ -30,6 +30,25 @@
       margin-top: 1em;
       border-radius: 6px;
     }
+    .group-0 {
+        background-color: #72c0f4;
+    }
+    .group-1 {
+        background-color: #72f6a9;
+    }
+    .group-2 {
+        background-color: #fcdf67;
+    }
+    .group-3 {
+        background-color: #f4b1e0;
+    }
+    .group-box {
+        padding: 1em;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 1em;
+}
+
     button {
       margin-top: 2em;
       padding: 0.8em 1.2em;
@@ -56,7 +75,7 @@
 <h1>Precies 4 – Maak je eigen puzzel</h1>
 
 <form id="maakForm">
-  <div class="groep">
+    <div class="group-box group-0">
     <label>Groep 1 naam</label>
     <input type="text" name="groep1_naam" value="groep 1, bijv dieren">
     <input type="text" name="groep1[]" placeholder="bijv hond">
@@ -65,7 +84,7 @@
     <input type="text" name="groep1[]" placeholder="bijv gans">
   </div>
 
-  <div class="groep">
+  <div class="group-box group-1">
     <label>Groep 2 naam</label>
     <input type="text" name="groep2_naam" value="groep 2">
     <input type="text" name="groep2[]" placeholder="Woord 1">
@@ -74,7 +93,7 @@
     <input type="text" name="groep2[]" placeholder="Woord 4">
   </div>
 
-  <div class="groep">
+  <div class="group-box group-2">
     <label>Groep 3 naam</label>
     <input type="text" name="groep3_naam" value="groep 3">
     <input type="text" name="groep3[]" placeholder="Woord 1">
@@ -83,7 +102,7 @@
     <input type="text" name="groep3[]" placeholder="Woord 4">
   </div>
 
-  <div class="groep">
+  <div class="group-box group-3">
     <label>Groep 4 naam</label>
     <input type="text" name="groep4_naam" value="groep 4">
     <input type="text" name="groep4[]" placeholder="Woord 1">

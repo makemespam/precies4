@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Connections Game</title>
+  <title>Precies 4</title>
   <style>
     body {
       font-family: sans-serif;
@@ -52,11 +52,19 @@
       margin-top: 1em;
       font-weight: bold;
     }
+    #levensMeter {
+        position: center;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5em;
+        user-select: none;
+    }
+
   </style>
 </head>
 <body>
-
-<h1>Precies 4 Pats</h1>
+<div id="levensMeter"></div>
+<h1>Precies 4</h1>
 <div id="grid"></div>
 
 <button id="submit">Submit</button>
@@ -104,74 +112,106 @@
   const status = document.getElementById("status");
   const submitBtn = document.getElementById("submit");
   const resetBtn = document.getElementById("reset");
+  const levensMeter = document.getElementById("levensMeter");
 
-  function renderGrid() {
-    grid.innerHTML = "";
-    shuffledWords.forEach(word => {
-      const div = document.createElement("div");
-      div.className = "word";
-      div.textContent = word;
-      div.onclick = () => toggleSelect(word, div);
-      grid.appendChild(div);
-    });
+  function updateLevensMeter() {
+    const max = maxMistakes;
+    const used = mistakes;
+    const remaining = max - used;
+    levensMeter.textContent = "❤️".repeat(remaining) + "🖤".repeat(used);
   }
 
   function toggleSelect(word, element) {
-    if (selected.includes(word)) {
-      selected = selected.filter(w => w !== word);
-      element.classList.remove("selected");
-    } else {
-      if (selected.length < 4) {
-        selected.push(word);
-        element.classList.add("selected");
-      }
+  if (selected.includes(word)) {
+    selected = selected.filter(w => w !== word);
+    element.classList.remove("selected");
+    submitBtn.disabled = selected.length !== 4;
+  } else {
+    if (selected.length === 4) {
+      // Reset bij klik op vijfde woord
+      document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+      selected = [];
     }
+    selected.push(word);
+    element.classList.add("selected");
+    submitBtn.disabled = selected.length !== 4;
   }
+}
+function renderGrid() {
+  grid.innerHTML = "";
+  shuffledWords.forEach(word => {
+    const div = document.createElement("div");
+    div.className = "word";
+    div.textContent = word;
+    div.onclick = () => toggleSelect(word, div);
+    grid.appendChild(div);
+  });
+}
+
 
   submitBtn.onclick = () => {
-    if (selected.length !== 4) {
-      status.textContent = "Selecteer precies vier woorden.";
-      return;
-    }
+  if (selected.length !== 4) {
+    status.textContent = "Selecteer precies vier woorden.";
+    return;
+  }
 
-    const groupIds = selected.map(word => solutionMap[word]);
-    const allSame = groupIds.every(id => id === groupIds[0]);
+  const groupIds = selected.map(word => solutionMap[word]);
+  const groupCount = groupIds.reduce((acc, id) => {
+    acc[id] = (acc[id] || 0) + 1;
+    return acc;
+  }, {});
+  const groupEntries = Object.entries(groupCount);
 
-    if (allSame && !foundGroups.has(groupIds[0])) {
-      foundGroups.add(groupIds[0]);
-      document.querySelectorAll(".word").forEach(el => {
-        if (selected.includes(el.textContent)) {
-          el.classList.remove("selected");
-          el.classList.add("correct");
-          el.onclick = null;
-        }
-      });
-      status.textContent = `Goed gevonden! Groep: ${groups[groupIds[0]].name}`;
-    } else {
-      mistakes++;
-      document.querySelectorAll(".word").forEach(el => {
-        if (selected.includes(el.textContent)) {
-          el.classList.add("wrong");
-          setTimeout(() => el.classList.remove("wrong"), 800);
-        }
-      });
-      status.textContent = `Fout! Aantal fouten: ${mistakes} / ${maxMistakes}`;
-    }
-
+  if (groupEntries.length === 1 && !foundGroups.has(groupIds[0])) {
+    // correcte groep
+    foundGroups.add(groupIds[0]);
+    document.querySelectorAll(".word").forEach(el => {
+      if (selected.includes(el.textContent)) {
+        el.classList.remove("selected");
+        el.classList.add("correct");
+        el.onclick = null;
+      }
+    });
+    status.innerHTML = `Goed gevonden! Groep: ${groups[groupIds[0]].name}<br>Aantal fouten: ${mistakes} / ${maxMistakes}`;
     selected = [];
-    document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+  } else {
+    mistakes++;
+    updateLevensMeter();
+    document.querySelectorAll(".word").forEach(el => {
+      if (selected.includes(el.textContent)) {
+        el.classList.add("wrong");
+        setTimeout(() => el.classList.remove("wrong"), 600);
+      }
+    });
 
-    if (foundGroups.size === 4) {
-      status.textContent = "🎉 Gefeliciteerd! Je hebt alles gevonden!";
-      submitBtn.disabled = true;
-      resetBtn.style.display = "inline";
-    } else if (mistakes >= maxMistakes) {
-      status.textContent = "😢 Te veel fouten!";
-      showSolutions();
-      submitBtn.disabled = true;
-      resetBtn.style.display = "inline";
+    let feedback = "";
+
+    if (groupEntries.some(([_, count]) => count === 3)) {
+        feedback += "Bijna goed – slechts één woord is fout.<br>";
     }
-  };
+
+    feedback += `Aantal fouten: ${mistakes} / ${maxMistakes}`;
+    status.innerHTML = feedback;
+
+
+    // Disable submit until selectie verandert
+    submitBtn.disabled = true;
+  }
+
+  if (foundGroups.size === 4) {
+    status.innerHTML = "🎉 Gefeliciteerd! Je hebt alles gevonden!<br>" +
+                   `Aantal fouten: ${mistakes} / ${maxMistakes}`;
+    submitBtn.disabled = true;
+    resetBtn.style.display = "inline";
+  } else if (mistakes >= maxMistakes) {
+    status.innerHTML = "😢 Het is niet gelukt!<br>" +
+                   `Aantal fouten: ${mistakes} / ${maxMistakes}`;
+    showSolutions();
+    submitBtn.disabled = true;
+    resetBtn.style.display = "inline";
+  }
+};
+
 
   function showSolutions() {
   const container = document.createElement("div");
@@ -202,6 +242,7 @@
   resetBtn.onclick = () => {
     foundGroups.clear();
     mistakes = 0;
+    updateLevensMeter();
     selected = [];
     shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
     submitBtn.disabled = false;
@@ -211,6 +252,7 @@
   };
 
   renderGrid();
+  updateLevensMeter();
 </script>
 
 </body>

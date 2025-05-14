@@ -42,6 +42,23 @@
       background-color: #e74c3c;
       color: white;
     }
+    .word.group-0 {
+        background-color: #72c0f4; /* blauw */
+        color: white;
+    }
+    .word.group-1 {
+        background-color: #72f6a9; /* groen */
+        color: white;
+    }
+    .word.group-2 {
+        background-color: #fcdf67; /* geel */
+        color: black;
+    }
+    .word.group-3 {
+        background-color: #f4b1e0; /* roze */
+        color: white;
+}
+  
     #submit, #reset {
       margin-top: 1em;
       padding: 10px 20px;
@@ -106,6 +123,7 @@
   let foundGroups = new Set();
   let selected = [];
   let mistakes = 0;
+  let triedCombinations = new Set();
   const maxMistakes = 6;
 
   const grid = document.getElementById("grid");
@@ -149,11 +167,23 @@ function renderGrid() {
 }
 
 
-  submitBtn.onclick = () => {
+submitBtn.onclick = () => {
   if (selected.length !== 4) {
     status.textContent = "Selecteer precies vier woorden.";
     return;
   }
+
+  const combinationKey = selected.slice().sort().join(",");
+
+  if (triedCombinations.has(combinationKey)) {
+    status.innerHTML = "Deze combinatie had je al geprobeerd!<br>" +
+                       `Aantal fouten: ${mistakes} / ${maxMistakes}`;
+    return;
+  }
+
+  triedCombinations.add(combinationKey);
+
+  // hierna volgt de fout/groepverwerking
 
   const groupIds = selected.map(word => solutionMap[word]);
   const groupCount = groupIds.reduce((acc, id) => {
@@ -168,7 +198,7 @@ function renderGrid() {
     document.querySelectorAll(".word").forEach(el => {
       if (selected.includes(el.textContent)) {
         el.classList.remove("selected");
-        el.classList.add("correct");
+        el.classList.add(`group-${groupIds[0]}`);
         el.onclick = null;
       }
     });
@@ -231,9 +261,9 @@ function renderGrid() {
   document.querySelectorAll(".word").forEach(el => {
     const groupId = solutionMap[el.textContent];
     if (!foundGroups.has(groupId)) {
-      el.classList.remove("selected");
-      el.classList.add("correct");
-      el.onclick = null;
+        el.classList.remove("selected");
+        el.classList.add(`group-${solutionMap[el.textContent]}`);
+        el.onclick = null;
     }
   });
 }

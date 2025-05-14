@@ -44,11 +44,11 @@
     }
     .word.group-0 {
         background-color: #72c0f4; /* blauw */
-        color: white;
+        color: black;
     }
     .word.group-1 {
         background-color: #72f6a9; /* groen */
-        color: white;
+        color: black;
     }
     .word.group-2 {
         background-color: #fcdf67; /* geel */
@@ -56,7 +56,7 @@
     }
     .word.group-3 {
         background-color: #f4b1e0; /* roze */
-        color: white;
+        color: rgb(0, 0, 0);
 }
   
     #submit, #reset {
@@ -183,8 +183,6 @@ submitBtn.onclick = () => {
 
   triedCombinations.add(combinationKey);
 
-  // hierna volgt de fout/groepverwerking
-
   const groupIds = selected.map(word => solutionMap[word]);
   const groupCount = groupIds.reduce((acc, id) => {
     acc[id] = (acc[id] || 0) + 1;
@@ -202,9 +200,22 @@ submitBtn.onclick = () => {
         el.onclick = null;
       }
     });
-    status.innerHTML = `Goed gevonden! Groep: ${groups[groupIds[0]].name}<br>Aantal fouten: ${mistakes} / ${maxMistakes}`;
+
+    const groupName = groups[groupIds[0]].name;
+    let feedback = `Goed gevonden! Groep: ${groupName}<br>Aantal fouten: ${mistakes} / ${maxMistakes}`;
+
     selected = [];
+
+    if (foundGroups.size === 4) {
+      feedback += `<br>🎉 Gefeliciteerd! Je hebt alles gevonden!`;
+      submitBtn.disabled = true;
+      resetBtn.style.display = "inline";
+    }
+
+    status.innerHTML = feedback;
+
   } else {
+    // fout
     mistakes++;
     updateLevensMeter();
     document.querySelectorAll(".word").forEach(el => {
@@ -217,28 +228,22 @@ submitBtn.onclick = () => {
     let feedback = "";
 
     if (groupEntries.some(([_, count]) => count === 3)) {
-        feedback += "Bijna goed – slechts één woord is fout.<br>";
+      feedback += "Bijna goed – slechts één woord is fout.<br>";
     }
 
     feedback += `Aantal fouten: ${mistakes} / ${maxMistakes}`;
     status.innerHTML = feedback;
 
-
     // Disable submit until selectie verandert
     submitBtn.disabled = true;
-  }
 
-  if (foundGroups.size === 4) {
-    status.innerHTML = "🎉 Gefeliciteerd! Je hebt alles gevonden!<br>" +
-                   `Aantal fouten: ${mistakes} / ${maxMistakes}`;
-    submitBtn.disabled = true;
-    resetBtn.style.display = "inline";
-  } else if (mistakes >= maxMistakes) {
-    status.innerHTML = "😢 Het is niet gelukt!<br>" +
-                   `Aantal fouten: ${mistakes} / ${maxMistakes}`;
-    showSolutions();
-    submitBtn.disabled = true;
-    resetBtn.style.display = "inline";
+    if (mistakes >= maxMistakes) {
+      status.innerHTML = "😢 Het is niet gelukt!<br>" +
+                         `Aantal fouten: ${mistakes} / ${maxMistakes}`;
+      showSolutions();
+      submitBtn.disabled = true;
+      resetBtn.style.display = "inline";
+    }
   }
 };
 

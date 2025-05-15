@@ -119,34 +119,33 @@
     group.words.forEach(word => solutionMap[word] = i);
   });
 
-  let shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
-  let foundGroups = new Set();
-  let selected = [];
-  let mistakes = 0;
-  let triedCombinations = new Set();
-  const maxMistakes = 6;
+ let shuffledWords;
+let foundGroups = new Set();
+let selected = [];
+let mistakes = 0;
+let triedCombinations = new Set();
+const maxMistakes = 6;
 
-  const grid = document.getElementById("grid");
-  const status = document.getElementById("status");
-  const submitBtn = document.getElementById("submit");
-  const resetBtn = document.getElementById("reset");
-  const levensMeter = document.getElementById("levensMeter");
+const grid = document.getElementById("grid");
+const status = document.getElementById("status");
+const submitBtn = document.getElementById("submit");
+const resetBtn = document.getElementById("reset");
+const levensMeter = document.getElementById("levensMeter");
 
-  function updateLevensMeter() {
-    const max = maxMistakes;
-    const used = mistakes;
-    const remaining = max - used;
-    levensMeter.textContent = "❤️".repeat(remaining) + "🖤".repeat(used);
-  }
+function updateLevensMeter() {
+  const max = maxMistakes;
+  const used = mistakes;
+  const remaining = max - used;
+  levensMeter.textContent = "❤️".repeat(remaining) + "🖤".repeat(used);
+}
 
-  function toggleSelect(word, element) {
+function toggleSelect(word, element) {
   if (selected.includes(word)) {
     selected = selected.filter(w => w !== word);
     element.classList.remove("selected");
     submitBtn.disabled = selected.length !== 4;
   } else {
     if (selected.length === 4) {
-      // Reset bij klik op vijfde woord
       document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
       selected = [];
     }
@@ -155,6 +154,7 @@
     submitBtn.disabled = selected.length !== 4;
   }
 }
+
 function renderGrid() {
   grid.innerHTML = "";
   shuffledWords.forEach(word => {
@@ -165,6 +165,13 @@ function renderGrid() {
     grid.appendChild(div);
   });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  shuffledWords = [...allWords].sort(() => Math.random() - 0.5);
+  renderGrid();
+  updateLevensMeter();
+});
+
 
 
 submitBtn.onclick = () => {

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Precies 4 - Maak je eigen puzzel</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 2em auto;
+      padding: 1em;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1em;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5em;
+      margin-bottom: 0.3em;
+      box-sizing: border-box;
+    }
+    .groep {
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin-top: 1em;
+      border-radius: 6px;
+    }
+    .group-0 {
+        background-color: #72c0f4;
+    }
+    .group-1 {
+        background-color: #72f6a9;
+    }
+    .group-2 {
+        background-color: #fcdf67;
+    }
+    .group-3 {
+        background-color: #f4b1e0;
+    }
+    .group-box {
+        padding: 1em;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 1em;
+}
+
+    button {
+      margin-top: 2em;
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 2em;
+      background: #f4f4f4;
+      padding: 1em;
+      border-radius: 6px;
+      word-wrap: break-word;
+    }
+    code {
+      font-family: monospace;
+      background: #eee;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Precies 4 – Maak je eigen puzzel</h1>
+
+<form id="maakForm">
+    <div class="group-box group-0">
+    <label>Groep 1 naam</label>
+    <input type="text" name="groep1_naam" value="groep 1, bijv dieren">
+    <input type="text" name="groep1[]" placeholder="bijv hond">
+    <input type="text" name="groep1[]" placeholder="bijv kip">
+    <input type="text" name="groep1[]" placeholder="bijv koe">
+    <input type="text" name="groep1[]" placeholder="bijv gans">
+  </div>
+
+  <div class="group-box group-1">
+    <label>Groep 2 naam</label>
+    <input type="text" name="groep2_naam" value="groep 2">
+    <input type="text" name="groep2[]" placeholder="Woord 1">
+    <input type="text" name="groep2[]" placeholder="Woord 2">
+    <input type="text" name="groep2[]" placeholder="Woord 3">
+    <input type="text" name="groep2[]" placeholder="Woord 4">
+  </div>
+
+  <div class="group-box group-2">
+    <label>Groep 3 naam</label>
+    <input type="text" name="groep3_naam" value="groep 3">
+    <input type="text" name="groep3[]" placeholder="Woord 1">
+    <input type="text" name="groep3[]" placeholder="Woord 2">
+    <input type="text" name="groep3[]" placeholder="Woord 3">
+    <input type="text" name="groep3[]" placeholder="Woord 4">
+  </div>
+
+  <div class="group-box group-3">
+    <label>Groep 4 naam</label>
+    <input type="text" name="groep4_naam" value="groep 4">
+    <input type="text" name="groep4[]" placeholder="Woord 1">
+    <input type="text" name="groep4[]" placeholder="Woord 2">
+    <input type="text" name="groep4[]" placeholder="Woord 3">
+    <input type="text" name="groep4[]" placeholder="Woord 4">
+  </div>
+
+  <button type="submit">Genereer spel</button>
+</form>
+
+<div id="output" style="display:none;">
+  Deel deze link:<br>
+  <code id="link"></code>
+</div>
+
+<script>
+  document.getElementById("maakForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const groepen = [];
+
+    for (let i = 1; i <= 4; i++) {
+      const naam = form[`groep${i}_naam`].value.trim();
+      const woorden = Array.from(form.querySelectorAll(`[name="groep${i}[]"]`))
+        .map(input => input.value.trim().toLowerCase())
+        .filter(w => w.length > 0);
+
+      if (woorden.length !== 4) {
+        alert(`Groep ${i} moet precies 4 woorden bevatten.`);
+        return;
+      }
+
+      groepen.push({ name: naam || `Groep ${i}`, words: woorden });
+    }
+
+    const json = JSON.stringify(groepen);
+    const encoded = encodeURIComponent(btoa(json));
+    const path = location.pathname.replace(/\/[^\/]*$/, ''); // haalt '/maak.html' weg
+    const link = `${location.origin}${path}/index.html?game=${encoded}`;
+
+    document.getElementById("link").textContent = link;
+    document.getElementById("output").style.display = "block";
+  });
+</script>
+
+</body>
+</html>

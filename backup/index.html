@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Precies 4</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: "Roboto", sans-serif;
+      font-family: sans-serif;
       background-color: #f4f4f4;
       padding: 2em;
       text-align: center;
@@ -27,11 +26,10 @@
       padding: 10px;
       cursor: pointer;
       user-select: none;
-      transition: background-color 0.2s, transform 0.2s;
+      transition: 0.2s;
     }
     .word.selected {
       background-color: #333;
-      transform: scale(1.05);
       color: white;
       border-color: #999;
     }
@@ -39,7 +37,6 @@
       background-color: #2ecc71;
       color: white;
       pointer-events: none;
-      animation: pop 0.3s ease;
     }
     .word.wrong {
       background-color: #e74c3c;
@@ -57,55 +54,28 @@
         background-color: #fcdf67; /* geel */
         color: black;
     }
-      .word.group-3 {
-          background-color: #f4b1e0; /* roze */
-          color: rgb(0, 0, 0);
-      }
+    .word.group-3 {
+        background-color: #f4b1e0; /* roze */
+        color: rgb(0, 0, 0);
+}
   
-    .solution-words {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 0.5em;
-    }
     #submit, #reset {
       margin-top: 1em;
       padding: 10px 20px;
       font-size: 1em;
       cursor: pointer;
-      border: none;
-      border-radius: 4px;
-      background-color: #333;
-      color: white;
-      margin: 0.2em;
-    }
-    #reset {
-      background-color: #777;
     }
     #status {
       margin-top: 1em;
       font-weight: bold;
     }
     #levensMeter {
-      display: flex;
-      justify-content: center;
-      gap: 4px;
-      font-size: 1.5em;
-      user-select: none;
-      margin-bottom: 1em;
+        position: center;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5em;
+        user-select: none;
     }
-    .heart {
-      color: #e74c3c;
-      transition: transform 0.2s;
-    }
-    .heart.lost {
-      color: #bbb;
-    }
-@keyframes pop {
-  from { transform: scale(0.9); }
-  to { transform: scale(1); }
-}
 
   </style>
 </head>
@@ -163,14 +133,10 @@ const resetBtn = document.getElementById("reset");
 const levensMeter = document.getElementById("levensMeter");
 
 function updateLevensMeter() {
-  levensMeter.innerHTML = "";
-  const remaining = maxMistakes - mistakes;
-  for (let i = 0; i < maxMistakes; i++) {
-    const span = document.createElement("span");
-    span.className = "heart" + (i < remaining ? "" : " lost");
-    span.textContent = "❤";
-    levensMeter.appendChild(span);
-  }
+  const max = maxMistakes;
+  const used = mistakes;
+  const remaining = max - used;
+  levensMeter.textContent = "❤️".repeat(remaining) + "🖤".repeat(used);
 }
 
 function toggleSelect(word, element) {
@@ -290,39 +256,29 @@ submitBtn.onclick = () => {
 
 
   function showSolutions() {
-    const container = document.createElement("div");
-    container.id = "solutions";
-    container.style.marginTop = "1em";
-    container.innerHTML = "<h3>De juiste groepen:</h3>";
+  const container = document.createElement("div");
+  container.style.marginTop = "1em";
+  container.style.textAlign = "center";
+  container.innerHTML = "<h3>De juiste groepen waren:</h3>";
 
-    groups.forEach((group, idx) => {
-      const section = document.createElement("div");
-      const title = document.createElement("h4");
-      title.textContent = `Groep ${idx + 1}: ${group.name}`;
-      section.appendChild(title);
+  groups.forEach(group => {
+    const groupDiv = document.createElement("div");
+    groupDiv.style.marginBottom = "0.5em";
+    groupDiv.innerHTML = `<strong>${group.name}:</strong> ${group.words.join(", ")}`;
+    container.appendChild(groupDiv);
+  });
 
-      const wordsDiv = document.createElement("div");
-      wordsDiv.className = "solution-words";
-      group.words.forEach(word => {
-        const el = document.createElement("div");
-        el.className = `word group-${idx}`;
-        el.textContent = word;
-        wordsDiv.appendChild(el);
-      });
+  status.appendChild(container);
 
-      section.appendChild(wordsDiv);
-      container.appendChild(section);
-    });
-
-    status.appendChild(container);
-
-    document.querySelectorAll(".word").forEach(el => {
-      const groupId = solutionMap[el.textContent];
-      el.classList.remove("selected");
-      el.classList.add(`group-${groupId}`);
-      el.onclick = null;
-    });
-  }
+  document.querySelectorAll(".word").forEach(el => {
+    const groupId = solutionMap[el.textContent];
+    if (!foundGroups.has(groupId)) {
+        el.classList.remove("selected");
+        el.classList.add(`group-${solutionMap[el.textContent]}`);
+        el.onclick = null;
+    }
+  });
+}
 
 
   resetBtn.onclick = () => {

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f2e22">
+  <meta name="description" content="Flip 7 om te spelen op meerdere telefoons - geen app nodig.">
+  <title>Flip 7</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================= START -->
+<section class="screen" id="screen-home" data-active>
+  <div class="hero">
+    <div class="logo"><span>FLIP</span><b>7</b></div>
+    <p class="tagline">Push your luck. Speel samen op meerdere telefoons.</p>
+  </div>
+
+  <label class="field">
+    <span>Jouw naam</span>
+    <input id="name-input" type="text" maxlength="16" autocomplete="nickname"
+           placeholder="bijv. Roeland" enterkeyhint="done">
+  </label>
+
+  <div class="stack">
+    <button class="btn primary" id="btn-host">
+      <b>Nieuw spel starten</b><small>Jij bent de tafel, anderen doen mee met een code</small>
+    </button>
+    <button class="btn" id="btn-join">
+      <b>Meedoen met een code</b><small>Iemand anders heeft al een spel gestart</small>
+    </button>
+    <button class="btn" id="btn-local">
+      <b>Op één telefoon</b><small>Doorgeven aan elkaar, geen internet nodig</small>
+    </button>
+  </div>
+
+  <button class="link" data-open-rules>Hoe werkt Flip 7?</button>
+</section>
+
+<!-- ============================================================== JOIN -->
+<section class="screen" id="screen-join">
+  <button class="back" data-goto="screen-home">← Terug</button>
+  <h2>Meedoen</h2>
+  <label class="field">
+    <span>Kamercode</span>
+    <input id="code-input" type="text" maxlength="4" autocapitalize="characters"
+           autocomplete="off" spellcheck="false" inputmode="text"
+           class="code-entry" placeholder="ABCD" enterkeyhint="go">
+  </label>
+  <button class="btn primary" id="btn-join-go"><b>Verbinden</b></button>
+  <p class="hint" id="join-hint">Vraag de code aan wie het spel gestart heeft.</p>
+</section>
+
+<!-- ============================================================= LOBBY -->
+<section class="screen" id="screen-lobby">
+  <h2>Wachtkamer</h2>
+
+  <div class="code-card" id="code-card">
+    <span class="code-label">Kamercode</span>
+    <strong class="code" id="room-code">····</strong>
+    <div class="code-actions">
+      <button class="btn small" id="btn-share">Link delen</button>
+      <button class="btn small" id="btn-copy">Code kopiëren</button>
+    </div>
+  </div>
+
+  <h3 class="section-title">Spelers <span class="muted" id="lobby-count"></span></h3>
+  <ul class="player-list" id="lobby-players"></ul>
+
+  <div id="lobby-host-only" hidden>
+    <label class="field">
+      <span>Spelen tot</span>
+      <select id="target-select">
+        <option value="100">100 punten (kort)</option>
+        <option value="200" selected>200 punten (normaal)</option>
+        <option value="300">300 punten (lang)</option>
+      </select>
+    </label>
+    <div id="local-add" hidden>
+      <label class="field">
+        <span>Speler toevoegen</span>
+        <span class="row">
+          <input id="local-name" type="text" maxlength="16" placeholder="Naam" enterkeyhint="done">
+          <button class="btn small" id="btn-local-add">+</button>
+        </span>
+      </label>
+    </div>
+    <button class="btn primary" id="btn-start"><b>Start het spel</b></button>
+  </div>
+  <p class="hint" id="lobby-hint"></p>
+  <button class="link" data-open-rules>Spelregels</button>
+  <button class="link danger" id="btn-leave">Spel verlaten</button>
+</section>
+
+<!-- ============================================================== SPEL -->
+<section class="screen wide" id="screen-game">
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="pill">Ronde <b id="hud-round">1</b></span>
+      <span class="pill">Tot <b id="hud-target">200</b></span>
+    </div>
+    <div class="topbar-right">
+      <span class="pill" title="Kaarten in het deck">🂠 <b id="hud-deck">0</b></span>
+      <span class="pill status" id="hud-net">·</span>
+      <button class="icon-btn" data-open-rules aria-label="Spelregels">?</button>
+    </div>
+  </header>
+
+  <div id="table" class="table"></div>
+
+  <ul class="feed" id="feed" aria-live="polite"></ul>
+
+  <div class="actionbar" id="actionbar"></div>
+</section>
+
+<!-- =========================================================== OVERLAYS -->
+<div class="reveal" id="reveal" hidden></div>
+
+<div class="sheet" id="sheet-round" hidden>
+  <div class="sheet-inner">
+    <h2 id="round-title">Ronde afgelopen</h2>
+    <ul class="score-list" id="round-scores"></ul>
+    <div class="sheet-actions" id="round-actions"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-rules" hidden>
+  <div class="sheet-inner">
+    <h2>Flip 7 in het kort</h2>
+    <p>Verzamel zoveel mogelijk punten, maar trek <b>nooit twee keer hetzelfde nummer</b>.</p>
+    <ul class="rules">
+      <li><b>Jouw beurt:</b> je trekt één kaart, of je stopt. Daarna is de volgende aan zet.</li>
+      <li><b>Zelfde nummer twee keer?</b> Je gaat kapot en scoort 0 deze ronde.</li>
+      <li><b>Stoppen</b> zet je punten veilig; je doet de rest van de ronde niet meer mee.</li>
+      <li><b>7 verschillende nummers = Flip 7:</b> de ronde stopt direct en je krijgt 15 bonuspunten.</li>
+      <li><b>+2 t/m +10</b> tellen op bij je score. <b>×2</b> verdubbelt de som van je nummerkaarten (plussen komen daarna).</li>
+      <li><b>Freeze:</b> kies een speler die nog meedoet - die stopt meteen met de punten die hij al heeft. Jezelf kiezen mag.</li>
+      <li><b>Flip Three:</b> kies een speler die nog meedoet - die trekt direct 3 kaarten. Kapot of Flip 7 onderbreekt de serie.</li>
+      <li><b>Second Chance:</b> houd je bij je. Trek je een dubbel nummer, dan gooi je die kaart plus je Second Chance weg in plaats van kapot te gaan. Heb je er al een, dan moet je de nieuwe weggeven.</li>
+      <li>Actiekaarten die je <i>tijdens</i> een Flip Three trekt, deel je pas uit als de serie klaar is.</li>
+      <li>De ronde stopt als iedereen gestopt of kapot is. Bij <b>200 punten</b> (of de gekozen grens) eindigt het spel na die ronde; de hoogste score wint.</li>
+    </ul>
+    <div class="sheet-actions">
+      <button class="btn primary" data-close-sheet><b>Duidelijk</b></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

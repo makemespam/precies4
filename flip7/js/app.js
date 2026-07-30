@@ -7,11 +7,11 @@
  *   local  - alles op één telefoon, doorgeven aan elkaar
  */
 import * as E from './engine.js';
-import { startHost, joinRoom, randomCode } from './net.js';
-
-const $ = (id) => document.getElementById(id);
-const NAME_KEY = 'flip7.name';
-const TOKEN_KEY = 'flip7.token';
+import { startHost, joinRoom, randomCode } from '../../shared/js/net.js';
+import {
+  $, show, isVisible, toast, escape, initials, button,
+  myToken, rememberedName, rememberName, keepAwake, shareInvite, copyCode,
+} from '../../shared/js/ui.js';
 
 const app = {
   mode: null,
@@ -20,46 +20,9 @@ const app = {
   myId: null,
   seenReel: 0,
   handSizes: new Map(),
-  wakeLock: null,
 };
 
-/* ------------------------------------------------------------ opslag */
-
-function myToken() {
-  let t = localStorage.getItem(TOKEN_KEY);
-  if (!t) {
-    t = randomCode(6) + '-' + Date.now().toString(36);
-    localStorage.setItem(TOKEN_KEY, t);
-  }
-  return t;
-}
-
-function myName() {
-  const raw = $('name-input').value.trim().slice(0, 16);
-  if (raw) localStorage.setItem(NAME_KEY, raw);
-  return raw;
-}
-
 /* ------------------------------------------------------------ helpers */
-
-function show(id) {
-  document.querySelectorAll('.screen').forEach((s) => s.removeAttribute('data-active'));
-  $(id).setAttribute('data-active', '');
-  window.scrollTo(0, 0);
-}
-
-let toastTimer;
-function toast(msg) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => (t.hidden = true), 2600);
-}
-
-function initials(name) {
-  return (name || '?').trim().slice(0, 1).toUpperCase();
-}
 
 function mySeat() {
   if (!app.state || !app.myId) return -1;
@@ -75,20 +38,6 @@ function canControl(seat) {
 }
 
 const isDirector = () => app.mode === 'host' || app.mode === 'local';
-
-async function keepAwake(on) {
-  try {
-    if (on && 'wakeLock' in navigator && !app.wakeLock) {
-      app.wakeLock = await navigator.wakeLock.request('screen');
-      app.wakeLock.addEventListener('release', () => (app.wakeLock = null));
-    } else if (!on && app.wakeLock) {
-      app.wakeLock.release();
-      app.wakeLock = null;
-    }
-  } catch {
-    /* niet ondersteund of geweigerd: niet erg */
-  }
-}
 
 /* -------------------------------------------------------------- zetten */
 
@@ -139,11 +88,11 @@ function render() {
 
   if (s.phase === 'lobby') {
     renderLobby();
-    if (!$('screen-lobby').hasAttribute('data-active')) show('screen-lobby');
+    if (!isVisible('screen-lobby')) show('screen-lobby');
     return;
   }
 
-  if (!$('screen-game').hasAttribute('data-active')) {
+  if (!isVisible('screen-game')) {
     show('screen-game');
     keepAwake(true);
   }
@@ -306,14 +255,6 @@ function actionName(kind) {
   return { freeze: 'Freeze', flip3: 'Flip Three', second: 'Second Chance' }[kind] || kind;
 }
 
-function button(cls, html, onClick) {
-  const b = document.createElement('button');
-  b.className = cls;
-  b.innerHTML = html;
-  b.addEventListener('click', onClick, { once: false });
-  return b;
-}
-
 /* ------------------------------------------------------ ronde-overzicht */
 
 function renderSheets() {
@@ -444,7 +385,7 @@ function renderLobby() {
 /* ---------------------------------------------------------------- host */
 
 async function beHost() {
-  const name = myName();
+  const name = rememberName($('name-input').value.trim().slice(0, 16));
   if (!name) return toast('Vul eerst je naam in.');
 
   const btn = $('btn-host');
@@ -528,7 +469,7 @@ function hostLeave(token) {
 /* --------------------------------------------------------------- guest */
 
 async function beGuest() {
-  const name = myName();
+  const name = rememberName($('name-input').value.trim().slice(0, 16));
   if (!name) {
     show('screen-home');
     return toast('Vul eerst je naam in.');
@@ -606,7 +547,7 @@ function netStatus(kind, detail) {
 /* --------------------------------------------------------------- local */
 
 function beLocal() {
-  const name = myName();
+  const name = rememberName($('name-input').value.trim().slice(0, 16));
   app.mode = 'local';
   app.myId = null;
   app.net = null;
@@ -644,17 +585,13 @@ function leave() {
   show('screen-home');
 }
 
-function escape(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
 function bind() {
-  $('name-input').value = localStorage.getItem(NAME_KEY) || '';
+  $('name-input').value = rememberedName();
 
   $('btn-host').addEventListener('click', beHost);
   $('btn-local').addEventListener('click', beLocal);
   $('btn-join').addEventListener('click', () => {
-    if (!myName()) return toast('Vul eerst je naam in.');
+    if (!rememberName($('name-input').value.trim().slice(0, 16))) return toast('Vul eerst je naam in.');
     show('screen-join');
     $('code-input').focus();
   });
@@ -678,28 +615,8 @@ function bind() {
     render();
   });
 
-  $('btn-copy').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(app.net.code);
-      toast('Code gekopieerd');
-    } catch {
-      toast('Code: ' + app.net.code);
-    }
-  });
-
-  $('btn-share').addEventListener('click', async () => {
-    const url = location.origin + location.pathname + '?join=' + app.net.code;
-    const data = { title: 'Flip 7', text: `Doe mee met Flip 7 - code ${app.net.code}`, url };
-    try {
-      if (navigator.share) await navigator.share(data);
-      else {
-        await navigator.clipboard.writeText(url);
-        toast('Link gekopieerd');
-      }
-    } catch {
-      /* gebruiker brak het delen af */
-    }
-  });
+  $('btn-copy').addEventListener('click', () => copyCode(app.net.code));
+  $('btn-share').addEventListener('click', () => shareInvite(app.net.code, 'Flip 7'));
 
   document.querySelectorAll('[data-open-rules]').forEach((b) =>
     b.addEventListener('click', () => ($('sheet-rules').hidden = false)),

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f2e22">
+  <meta name="description" content="Regenwoezels: dobbelen om tegels, op meerdere telefoons. Geen app nodig.">
+  <title>Regenwoezels</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪱</text></svg>">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================= START -->
+<section class="screen" id="screen-home" data-active>
+  <div class="hero">
+    <div class="logo"><span>REGEN</span><b>woezels</b></div>
+    <p class="tagline">Dobbel om de tegels - en pak ze van elkaar af.</p>
+  </div>
+
+  <label class="field">
+    <span>Jouw naam</span>
+    <input id="name-input" type="text" maxlength="16" autocomplete="nickname"
+           placeholder="bijv. Roeland" enterkeyhint="done">
+  </label>
+
+  <div class="stack">
+    <button class="btn primary" id="btn-host">
+      <b>Nieuw spel starten</b><small>Jij bent de tafel, anderen doen mee met een code</small>
+    </button>
+    <button class="btn" id="btn-join">
+      <b>Meedoen met een code</b><small>Iemand anders heeft al een spel gestart</small>
+    </button>
+    <button class="btn" id="btn-local">
+      <b>Op één telefoon</b><small>Doorgeven aan elkaar, geen internet nodig</small>
+    </button>
+  </div>
+
+  <button class="link" data-open-rules>Hoe werkt het?</button>
+</section>
+
+<!-- ============================================================== JOIN -->
+<section class="screen" id="screen-join">
+  <button class="back" data-goto="screen-home">← Terug</button>
+  <h2>Meedoen</h2>
+  <label class="field">
+    <span>Kamercode</span>
+    <input id="code-input" type="text" maxlength="4" autocapitalize="characters"
+           autocomplete="off" spellcheck="false" inputmode="text"
+           class="code-entry" placeholder="ABCD" enterkeyhint="go">
+  </label>
+  <button class="btn primary" id="btn-join-go"><b>Verbinden</b></button>
+  <p class="hint" id="join-hint">Vraag de code aan wie het spel gestart heeft.</p>
+</section>
+
+<!-- ============================================================= LOBBY -->
+<section class="screen" id="screen-lobby">
+  <h2>Wachtkamer</h2>
+
+  <div class="code-card" id="code-card">
+    <span class="code-label">Kamercode</span>
+    <strong class="code" id="room-code">····</strong>
+    <div class="code-actions">
+      <button class="btn small" id="btn-share">Link delen</button>
+      <button class="btn small" id="btn-copy">Code kopiëren</button>
+    </div>
+  </div>
+
+  <h3 class="section-title">Spelers <span class="muted" id="lobby-count"></span></h3>
+  <ul class="player-list" id="lobby-players"></ul>
+
+  <div id="lobby-host-only" hidden>
+    <div id="local-add" hidden>
+      <label class="field">
+        <span>Speler toevoegen</span>
+        <span class="row">
+          <input id="local-name" type="text" maxlength="16" placeholder="Naam" enterkeyhint="done">
+          <button class="btn small" id="btn-local-add">+</button>
+        </span>
+      </label>
+    </div>
+    <button class="btn primary" id="btn-start"><b>Start het spel</b></button>
+  </div>
+  <p class="hint" id="lobby-hint"></p>
+  <button class="link" data-open-rules>Spelregels</button>
+  <button class="link danger" id="btn-leave">Spel verlaten</button>
+</section>
+
+<!-- ============================================================== SPEL -->
+<section class="screen wide" id="screen-game">
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="pill">Grill <b id="hud-row">16</b></span>
+      <span class="pill" id="hud-gone" hidden></span>
+    </div>
+    <div class="topbar-right">
+      <span class="pill status" id="hud-net">·</span>
+      <button class="icon-btn" data-open-rules aria-label="Spelregels">?</button>
+    </div>
+  </header>
+
+  <div class="grill" id="grill"></div>
+  <div class="mat" id="mat"></div>
+  <div id="table" class="table"></div>
+  <ul class="feed" id="feed" aria-live="polite"></ul>
+  <div class="actionbar" id="actionbar"></div>
+</section>
+
+<!-- =========================================================== OVERLAYS -->
+<div class="sheet" id="sheet-end" hidden>
+  <div class="sheet-inner">
+    <h2 id="end-title">Afgelopen</h2>
+    <ul class="score-list" id="end-scores"></ul>
+    <div class="sheet-actions" id="end-actions"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-rules" hidden>
+  <div class="sheet-inner">
+    <h2>Regenwoezels in het kort</h2>
+    <p>Er liggen 16 tegels op de grill, van 21 tot 36. Je dobbelt om ze te bemachtigen -
+      en je kunt ze ook van elkaar afpakken. Wie aan het eind de meeste woezels heeft, wint.</p>
+    <ul class="rules">
+      <li><b>Jouw beurt:</b> gooi met 8 dobbels, kies <b>één</b> waarde en leg <b>alle</b>
+        dobbels met die waarde apart.</li>
+      <li>Daarna gooi je verder met wat er over is, of je stopt. Dezelfde waarde mag je
+        <b>niet nog eens</b> kiezen.</li>
+      <li>Een <b>woezel</b> is 5 punten waard, net als een 5. Maar je hebt er <b>minstens één</b>
+        nodig om een tegel te mogen pakken.</li>
+      <li><b>Stoppen:</b> je pakt de hoogste tegel op de grill die niet boven je totaal ligt.
+        Is je totaal precies gelijk aan de <b>bovenste tegel van een andere speler</b>, dan mag je
+        die in plaats daarvan afpakken.</li>
+      <li><b>Mislukt</b> als je niets nieuws kunt apart leggen, geen woezel hebt, of te laag
+        eindigt voor elke tegel. Dan lever je je bovenste tegel weer in, en gaat de hoogste tegel
+        van de grill uit het spel.</li>
+      <li>Alleen je <b>bovenste</b> tegel kan afgepakt of ingeleverd worden.</li>
+      <li><b>Einde:</b> zodra de grill leeg is. Tel je woezels: 21-24 = 1, 25-28 = 2,
+        29-32 = 3, 33-36 = 4.</li>
+    </ul>
+    <p class="hint">Dit is onze eigen versie van een bekend dobbelspel: eigen naam, eigen
+      vormgeving, alleen de spelregels zijn hetzelfde.</p>
+    <div class="sheet-actions">
+      <button class="btn primary" data-close-sheet><b>Duidelijk</b></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -9,8 +9,9 @@ Statische site op GitHub Pages: `https://makemespam.github.io/precies4/`.
 | Puzzel maken | [`/maak.html`](maak.html) | Eigen Precies 4-puzzel in elkaar zetten. |
 | **Flip 7** | [`/flip7/`](flip7/) | Push your luck met kaarten, op meerdere telefoons. |
 | **Tienduizend** | [`/tienduizend/`](tienduizend/) | Het dobbelspel, op meerdere telefoons. |
+| **Regenwoezels** | [`/regenwoezels/`](regenwoezels/) | Dobbelen om tegels - en ze van elkaar afpakken. |
 
-Flip 7 en Tienduizend werken hetzelfde: één telefoon start een spel en krijgt een
+Flip 7, Tienduizend en Regenwoezels werken hetzelfde: één telefoon start een spel en krijgt een
 kamercode van 4 tekens, de anderen doen mee via die code of de deel-link. Er is
 ook een "op één telefoon"-stand om hem aan elkaar door te geven.
 
@@ -27,6 +28,7 @@ shared/          gedeeld door alle spellen
   vendor/          meegeleverde PeerJS-build (MIT)
 flip7/           spel: engine + tafel + eigen CSS
 tienduizend/     spel: engine + tafel + eigen CSS
+regenwoezels/    spel: engine + tafel + eigen CSS
 ```
 
 Elk spel heeft een `js/engine.js` met alleen de regels - geen DOM, geen netwerk -
@@ -42,7 +44,8 @@ kan met `?peer=host:poort` in de URL.
 ## Tests
 
 ```sh
-node --test flip7/test/engine.test.mjs tienduizend/test/engine.test.mjs
+node --test flip7/test/engine.test.mjs tienduizend/test/engine.test.mjs \
+  regenwoezels/test/engine.test.mjs
 ```
 
 Elk spel heeft zijn eigen `README.md` met de regels zoals de app ze toepast.

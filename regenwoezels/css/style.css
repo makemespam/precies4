@@ -1,0 +1,132 @@
+/* Regenwoezels - alleen wat specifiek is voor dit spel. Basis: ../../shared/css/base.css */
+
+/* ----------------------------------------------------------------- grill */
+.grill {
+  display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;
+  background: rgba(0, 0, 0, .22);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  min-height: 62px;
+}
+.grill:empty::after { content: "de grill is leeg"; color: var(--muted); font-size: .82rem; align-self: center; }
+
+.tile {
+  flex: none; width: 42px; padding: 4px 0 3px; border-radius: 9px;
+  background: linear-gradient(165deg, #d8a76a, #b9793d);
+  color: #2c1a09; text-align: center;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .35);
+  border: 0;
+}
+.tile .n { display: block; font-weight: 800; font-size: 1rem; line-height: 1.1; }
+.tile .ws { display: flex; gap: 1px; justify-content: center; height: 9px; }
+.tile.small { width: 34px; border-radius: 7px; }
+.tile.small .n { font-size: .85rem; }
+.tile.reach {
+  outline: 2px solid var(--gold); outline-offset: 1px;
+}
+.tile.gone { background: linear-gradient(165deg, #55605a, #3c453f); color: #97a29b; box-shadow: none; }
+.tile.gone .worm { opacity: .35; }
+.tile.take { cursor: pointer; }
+.tile.take:active { transform: scale(.95); }
+
+.worm { display: block; width: 9px; height: 9px; }
+/* Zonder deze regel heeft de woezel geen lijnkleur en is hij onzichtbaar. */
+.worm path { stroke: currentColor; }
+.tile .worm path { stroke: #3a2306; }
+
+/* ------------------------------------------------------------- dobbelmat */
+.mat {
+  background: rgba(0, 0, 0, .22);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.mat-row { margin-bottom: 10px; }
+.mat-row:last-child { margin-bottom: 0; }
+.mat-label {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); margin-bottom: 7px;
+}
+.mat-label b { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: .9rem; }
+.mat-label .spacer { margin-left: auto; }
+
+.dice { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 42px; }
+.dice.empty::after { content: "nog niets"; color: var(--muted); font-size: .82rem; }
+
+/* Dobbels van dezelfde waarde staan als groep bij elkaar en zijn samen aan te tikken. */
+.group {
+  display: flex; gap: 4px; padding: 4px; border-radius: 12px;
+  background: rgba(255, 255, 255, .05); border: 1px solid transparent;
+}
+.group.pickable { cursor: pointer; border-color: var(--line); }
+.group.pickable:active { transform: scale(.96); }
+.group.dim { opacity: .4; }
+.group .val {
+  align-self: center; font-size: .7rem; color: var(--muted); padding: 0 4px;
+}
+
+.die {
+  flex: none; width: 40px; height: 40px; border-radius: 9px;
+  background: linear-gradient(160deg, #fdfdf7, #ddd9c8);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .35);
+  display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  padding: 5px; border: 0; position: relative;
+}
+.die .pip { width: 100%; height: 100%; display: grid; place-items: center; }
+.die .pip::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #1e2a22; }
+.die.wormface { display: grid; place-items: center; padding: 6px; }
+.die.wormface .worm { width: 100%; height: 100%; }
+.die.wormface .worm path { stroke: #2f6b3d; }
+.die.small { width: 30px; height: 30px; padding: 4px; border-radius: 7px; }
+.die.small .pip::after { width: 5px; height: 5px; }
+.die.aside { background: linear-gradient(160deg, #c6d8cc, #9fb6a7); box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+.die.rolled { animation: tumble .4s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes tumble { from { transform: translateY(-16px) rotate(-22deg) scale(.7); opacity: 0; } }
+
+.turn-total {
+  display: flex; align-items: baseline; justify-content: center; gap: 8px;
+  padding-top: 10px; margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.turn-total .big { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.turn-total .lbl { color: var(--muted); font-size: .85rem; }
+.turn-total .noworm { color: var(--red); font-size: .8rem; }
+.turn-total .okworm { color: var(--green); font-size: .8rem; }
+
+.fail { text-align: center; padding: 4px 0 2px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.fail small { display: block; color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+/* --------------------------------------------------------------- spelers */
+.table { display: grid; gap: 8px; }
+
+.seat {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 14px;
+  background: var(--card); border: 1px solid var(--line);
+}
+.seat.active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.seat.me { background: rgba(255, 255, 255, .12); }
+.seat.target { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
+.seat-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat-name .you { font-weight: 400; color: var(--muted); font-size: .82rem; }
+.seat .stack { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.seat .stack .count { color: var(--muted); font-size: .78rem; }
+.seat .wormtotal { display: flex; align-items: center; gap: 3px; font-weight: 800; }
+.seat .wormtotal .worm { width: 12px; height: 12px; }
+.wormtotal .worm path { stroke: #6ee7a8; }
+.seat .empty { color: var(--muted); font-size: .8rem; }
+
+/* -------------------------------------------------------------- knoppen */
+.duo { display: flex; gap: 10px; }
+.duo .btn { text-align: center; }
+.btn.roll { background: var(--gold); color: #23180a; border-color: transparent; }
+.btn.hold { background: rgba(110, 200, 255, .18); border-color: rgba(110, 200, 255, .5); }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.choices .btn { width: auto; flex: 1 1 45%; text-align: center; }
+
+@media (min-width: 620px) {
+  .table { grid-template-columns: 1fr 1fr; }
+}

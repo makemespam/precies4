@@ -15,6 +15,10 @@ export const MAX_PLAYERS = 12;
 
 export class GameError extends Error {}
 
+/** Puntenaantallen in het logboek net zo schrijven als op het scherm. */
+const nf = new Intl.NumberFormat('nl-NL');
+const n = (x) => nf.format(x);
+
 /* ----------------------------------------------------------------- score */
 
 function tally(values) {
@@ -148,7 +152,7 @@ export function startGame(s) {
   s.turn = 0;
   resetTurn(s);
   s.log = [];
-  log(s, `${s.players[0].name} mag beginnen. Spelen tot ${s.target}.`);
+  log(s, `${s.players[0].name} mag beginnen. Spelen tot ${n(s.target)}.`);
   return s;
 }
 
@@ -213,7 +217,7 @@ export function roll(s, seat, rnd = Math.random) {
   s.rollId = ++s.seq;
 
   if (!hasScore(s.roll, s)) {
-    log(s, `${p.name} gooit ${s.roll.join('-')} - poedel! ${s.banked} punten weg.`);
+    log(s, `${p.name} gooit ${s.roll.join('-')} - poedel! ${n(s.banked)} punten weg.`);
     s.poedel = { seat, roll: s.roll.slice() };
     s.banked = 0;
     s.rolling = false;
@@ -249,7 +253,7 @@ function commit(s, seat) {
   const sel = validSelection(s);
   const p = s.players[seat];
   const kept = s.picked.map((i) => s.roll[i]);
-  log(s, `${p.name} legt ${describe(kept, s)} vast (+${sel.score}).`);
+  log(s, `${p.name} legt ${describe(kept, s)} vast (+${n(sel.score)}).`);
 
   s.banked += sel.score;
   s.aside.push(...kept);
@@ -276,16 +280,16 @@ export function bank(s, seat) {
   const p = s.players[seat];
   const sel = validSelection(s);
   if (!p.onBoard && s.banked + sel.score < s.entry) {
-    throw new GameError(`Je moet met minstens ${s.entry} punten in één beurt binnenkomen.`);
+    throw new GameError(`Je moet met minstens ${n(s.entry)} punten in één beurt binnenkomen.`);
   }
   commit(s, seat);
   p.total += s.banked;
   p.onBoard = true;
-  log(s, `${p.name} stopt met ${s.banked} punten. Totaal: ${p.total}.`);
+  log(s, `${p.name} stopt met ${n(s.banked)} punten. Totaal: ${n(p.total)}.`);
 
   if (p.total >= s.target && s.closingBy === null) {
     s.closingBy = seat;
-    log(s, `${p.name} is over de ${s.target}! Iedereen krijgt nog één beurt.`);
+    log(s, `${p.name} is over de ${n(s.target)}! Iedereen krijgt nog één beurt.`);
   }
   nextTurn(s);
   return s;

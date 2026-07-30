@@ -135,6 +135,28 @@ test('actiekaart binnen een Flip Three wordt na de serie opgelost', () => {
   assert.equal(s.players[1].status, 'frozen');
 });
 
+test('een Flip Three binnen een Flip Three telt als een van de drie kaarten', () => {
+  //  A trekt Flip Three en kiest B.
+  //  B trekt: 1, Flip Three, 2  -> de actiekaart is de tweede van B's drie.
+  //  Pas als B's serie klaar is, deelt B de nieuwe Flip Three uit (aan C).
+  const s = rig(['A', 'B', 'C'], [act('flip3'), num(1), act('flip3'), num(2), num(4), num(5), num(6)]);
+  E.hit(s, 0);
+  E.chooseTarget(s, 0, 1);
+
+  assert.deepEqual(s.players[1].numbers, [1, 2], 'de Flip Three vulde de derde flip niet aan');
+  assert.equal(s.deck.length, 3, 'B heeft precies 3 kaarten getrokken, niet 4');
+
+  const a = E.actor(s);
+  assert.equal(a.kind, 'flip3', 'de tweede Flip Three wordt na de serie uitgedeeld');
+  assert.equal(a.seat, 1, 'B trok hem, dus B kiest');
+  assert.deepEqual(a.targets, [0, 1, 2]);
+
+  E.chooseTarget(s, 1, 2);
+  assert.deepEqual(s.players[2].numbers, [4, 5, 6], 'C flipt er nog drie voor de tweede Flip Three');
+  assert.equal(s.deck.length, 0);
+  assert.equal(E.actor(s).kind, 'turn', 'daarna gaat de beurt normaal verder');
+});
+
 test('dubbele Second Chance moet doorgegeven worden', () => {
   const s = rig(['A', 'B'], [act('second'), num(4), act('second')]);
   E.hit(s, 0);

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f2e22">
+  <meta name="description" content="Wartaal: het woordenboekspel, op meerdere telefoons. Geen app nodig.">
+  <title>Wartaal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================= START -->
+<section class="screen" id="screen-home" data-active>
+  <div class="hero">
+    <div class="logo"><span>WAR</span><b>taal</b></div>
+    <p class="tagline">Verzin een betekenis die nergens op slaat, maar wel klopt.</p>
+  </div>
+
+  <label class="field">
+    <span>Jouw naam</span>
+    <input id="name-input" type="text" maxlength="16" autocomplete="nickname"
+           placeholder="bijv. Roeland" enterkeyhint="done">
+  </label>
+
+  <div class="stack">
+    <button class="btn primary" id="btn-host">
+      <b>Nieuw spel starten</b><small>Jij bent de tafel, anderen doen mee met een code</small>
+    </button>
+    <button class="btn" id="btn-join">
+      <b>Meedoen met een code</b><small>Iemand anders heeft al een spel gestart</small>
+    </button>
+    <button class="btn" id="btn-local">
+      <b>Op één telefoon</b><small>Doorgeven aan elkaar - werkt, maar met veel gedoe</small>
+    </button>
+  </div>
+
+  <button class="link" data-open-rules>Hoe werkt het?</button>
+</section>
+
+<!-- ============================================================== JOIN -->
+<section class="screen" id="screen-join">
+  <button class="back" data-goto="screen-home">← Terug</button>
+  <h2>Meedoen</h2>
+  <label class="field">
+    <span>Kamercode</span>
+    <input id="code-input" type="text" maxlength="4" autocapitalize="characters"
+           autocomplete="off" spellcheck="false" inputmode="text"
+           class="code-entry" placeholder="ABCD" enterkeyhint="go">
+  </label>
+  <button class="btn primary" id="btn-join-go"><b>Verbinden</b></button>
+  <p class="hint" id="join-hint">Vraag de code aan wie het spel gestart heeft.</p>
+</section>
+
+<!-- ============================================================= LOBBY -->
+<section class="screen" id="screen-lobby">
+  <h2>Wachtkamer</h2>
+
+  <div class="code-card" id="code-card">
+    <span class="code-label">Kamercode</span>
+    <strong class="code" id="room-code">····</strong>
+    <div class="code-actions">
+      <button class="btn small" id="btn-share">Link delen</button>
+      <button class="btn small" id="btn-copy">Code kopiëren</button>
+    </div>
+  </div>
+
+  <h3 class="section-title">Spelers <span class="muted" id="lobby-count"></span></h3>
+  <ul class="player-list" id="lobby-players"></ul>
+
+  <div id="lobby-host-only" hidden>
+    <label class="field">
+      <span>Aantal rondes</span>
+      <select id="rondes-select">
+        <option value="6">6 (kort)</option>
+        <option value="10" selected>10</option>
+        <option value="16">16 (lang)</option>
+      </select>
+    </label>
+    <div id="local-add" hidden>
+      <label class="field">
+        <span>Speler toevoegen</span>
+        <span class="row">
+          <input id="local-name" type="text" maxlength="16" placeholder="Naam" enterkeyhint="done">
+          <button class="btn small" id="btn-local-add">+</button>
+        </span>
+      </label>
+    </div>
+    <button class="btn primary" id="btn-start"><b>Start het spel</b></button>
+  </div>
+  <p class="hint" id="lobby-hint"></p>
+  <button class="link" data-open-rules>Spelregels</button>
+  <button class="link danger" id="btn-leave">Spel verlaten</button>
+</section>
+
+<!-- ========================================================= DOORGEVEN -->
+<section class="screen" id="screen-handoff">
+  <div class="handoff">
+    <p class="muted">Geef de telefoon aan</p>
+    <h2 id="handoff-name">…</h2>
+    <p class="hint" id="handoff-what"></p>
+    <button class="btn primary" id="btn-handoff"><b>Dat ben ik</b></button>
+  </div>
+</section>
+
+<!-- ============================================================== SPEL -->
+<section class="screen wide" id="screen-game">
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="pill">Ronde <b id="hud-ronde">1</b>/<b id="hud-rondes">10</b></span>
+      <span class="pill" id="hud-pool"></span>
+    </div>
+    <div class="topbar-right">
+      <span class="pill status" id="hud-net">·</span>
+      <button class="icon-btn" data-open-rules aria-label="Spelregels">?</button>
+    </div>
+  </header>
+
+  <div id="stage"></div>
+  <div id="table" class="table"></div>
+  <div class="actionbar" id="actionbar"></div>
+</section>
+
+<!-- =========================================================== OVERLAYS -->
+<div class="sheet" id="sheet-end" hidden>
+  <div class="sheet-inner">
+    <h2 id="end-title">Afgelopen</h2>
+    <ul class="score-list" id="end-scores"></ul>
+    <div class="sheet-actions" id="end-actions"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-rules" hidden>
+  <div class="sheet-inner">
+    <h2>Wartaal in het kort</h2>
+    <p>Eén speler kiest een woord dat niemand kent. Iedereen schrijft een omschrijving.
+      Daarna moet je eruit halen welke de echte is.</p>
+    <ul class="rules">
+      <li><b>De kiezer</b> krijgt 15 woorden te zien, <b>zonder</b> de betekenis, en kiest er één.
+        Pas daarna ziet hij wat het betekent.</li>
+      <li><b>De kiezer bluft niet.</b> Hij schrijft de echte betekenis over en mag hem inkorten,
+        maar alleen met woorden die in de omschrijving staan - plus lidwoorden en voorzetsels.
+        De app rekent hem daarop af.</li>
+      <li><b>De rest verzint</b> een omschrijving die zo echt mogelijk klinkt.</li>
+      <li>Alles wordt geschud en anoniem getoond. Iedereen behalve de kiezer stemt; op je eigen
+        inzending stemmen mag niet.</li>
+      <li><b>Punten:</b> 2 als je de echte vindt &middot; 1 voor elke stem op jouw verzinsel
+        &middot; de kiezer krijgt 1 per speler die de echte mist, met een plafond van 2.</li>
+      <li>Een gebruikt woord komt <b>nooit meer terug</b>. De andere veertien uit de keuze wel.</li>
+    </ul>
+    <div class="sheet-actions">
+      <button class="btn primary" data-close-sheet><b>Duidelijk</b></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

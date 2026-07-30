@@ -1,0 +1,109 @@
+/* Wartaal - alleen wat specifiek is voor dit spel. Basis: ../../shared/css/base.css */
+
+/* ------------------------------------------------------------ doorgeven */
+.handoff { text-align: center; padding: 12vh 0; }
+.handoff h2 { font-size: 2.2rem; margin: .2em 0 .4em; }
+.handoff .btn { margin-top: 2em; }
+
+/* --------------------------------------------------------------- stage */
+#stage { margin-bottom: 14px; }
+
+.stagekop { margin-bottom: 12px; }
+.stagekop h3 { margin: 0 0 .2em; font-size: 1.1rem; }
+.stagekop .hint { margin: 0; }
+.stagekop .eigen {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; margin: 8px 0 0;
+}
+
+.woordkop {
+  background: rgba(0, 0, 0, .22); border: 1px solid var(--line);
+  border-radius: 18px; padding: 14px; text-align: center; margin-bottom: 12px;
+}
+.woordkop .label {
+  display: block; font-size: .7rem; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--muted); margin-bottom: 4px;
+}
+.woordkop strong { font-size: 1.9rem; font-weight: 800; letter-spacing: -.01em; }
+
+/* De vijftien woorden om uit te kiezen */
+.woordgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.woordknop {
+  padding: 13px 10px; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.woordknop:active { transform: scale(.97); background: rgba(255, 255, 255, .14); }
+
+/* De echte betekenis uit het boek */
+.echte {
+  background: rgba(255, 210, 90, .1); border: 1px solid rgba(255, 210, 90, .35);
+  border-radius: 14px; padding: 11px 13px; margin: 0 0 12px; line-height: 1.4;
+}
+.echte .label {
+  display: block; font-size: .68rem; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--gold); margin-bottom: 3px;
+}
+
+textarea {
+  width: 100%; padding: 12px; font: inherit; line-height: 1.4; color: var(--ink);
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  resize: vertical; min-height: 90px;
+}
+textarea:focus { outline: 2px solid var(--gold); outline-offset: 2px; }
+#schrijfmelding { margin: 6px 2px 0; font-size: .82rem; }
+
+/* -------------------------------------------------------- inzendingen */
+.inzendingen { display: grid; gap: 8px; }
+
+.inzending {
+  display: block; width: 100%; text-align: left; padding: 12px 13px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  color: var(--ink); font: inherit; line-height: 1.4;
+}
+.inzending.kiesbaar { cursor: pointer; }
+.inzending.kiesbaar:active { transform: scale(.99); background: rgba(255, 255, 255, .13); }
+.inzending.mijn { opacity: .6; }
+.inzending .merk {
+  display: block; margin-top: 5px; font-size: .72rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted);
+}
+.inzending.echt { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+
+.regel-onder {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline;
+  margin-top: 7px; font-size: .78rem;
+}
+.regel-onder .auteur { font-weight: 700; color: var(--gold); }
+.inzending:not(.echt) .regel-onder .auteur { color: var(--muted); font-weight: 400; }
+.regel-onder .stemmen { color: var(--blue); }
+.regel-onder .stemmen.leeg { color: rgba(255, 255, 255, .25); }
+
+.wachten {
+  margin: 12px 0 0; text-align: center; font-size: .82rem; color: var(--muted);
+}
+
+/* -------------------------------------------------------------- tafel */
+.table { display: grid; gap: 8px; margin-top: 4px; }
+
+.seat {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 14px;
+  background: var(--card); border: 1px solid var(--line);
+}
+.seat.kiezer { border-color: var(--gold); }
+.seat.me { background: rgba(255, 255, 255, .12); }
+.seat-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat-name .you { font-weight: 400; color: var(--muted); font-size: .82rem; }
+.seat .badge {
+  font-size: .66rem; text-transform: uppercase; letter-spacing: .06em;
+  padding: 3px 7px; border-radius: 999px; background: #ffffff1f; color: var(--muted);
+}
+.seat .badge.kiezer { background: rgba(255, 210, 90, .2); color: var(--gold); }
+.seat .badge.klaar { background: rgba(110, 231, 168, .2); color: var(--green); }
+.seat .punten { margin-left: auto; font-weight: 800; font-size: 1.1rem; }
+
+@media (min-width: 620px) {
+  .table { grid-template-columns: 1fr 1fr; }
+  .woordgrid { grid-template-columns: repeat(3, 1fr); }
+}

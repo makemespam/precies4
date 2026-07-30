@@ -10,8 +10,9 @@ Statische site op GitHub Pages: `https://makemespam.github.io/precies4/`.
 | **Flip 7** | [`/flip7/`](flip7/) | Push your luck met kaarten, op meerdere telefoons. |
 | **Tienduizend** | [`/tienduizend/`](tienduizend/) | Het dobbelspel, op meerdere telefoons. |
 | **Regenwoezels** | [`/regenwoezels/`](regenwoezels/) | Dobbelen om tegels - en ze van elkaar afpakken. |
+| **Wartaal** | [`/wartaal/`](wartaal/) | Het woordenboekspel: verzin een betekenis die echt lijkt. |
 
-Flip 7, Tienduizend en Regenwoezels werken hetzelfde: één telefoon start een spel en krijgt een
+Flip 7, Tienduizend, Regenwoezels en Wartaal werken hetzelfde: één telefoon start een spel en krijgt een
 kamercode van 4 tekens, de anderen doen mee via die code of de deel-link. Er is
 ook een "op één telefoon"-stand om hem aan elkaar door te geven.
 
@@ -29,6 +30,7 @@ shared/          gedeeld door alle spellen
 flip7/           spel: engine + tafel + eigen CSS
 tienduizend/     spel: engine + tafel + eigen CSS
 regenwoezels/    spel: engine + tafel + eigen CSS
+wartaal/         spel: engine + tafel + eigen CSS + woordenlijst
 ```
 
 Elk spel heeft een `js/engine.js` met alleen de regels - geen DOM, geen netwerk -
@@ -37,7 +39,9 @@ engine is de plek waar de regels wonen, en de plek waar de tests op mikken.
 
 De telefoon die een spel start is de host: die heeft de enige echte spelstand,
 controleert elke zet tegen de regels en stuurt de nieuwe stand rond. Gasten
-sturen alleen intenties. Het koppelen loopt via de gratis PeerJS-signaalserver,
+sturen alleen intenties. Bij Wartaal krijgt elke speler bovendien een eigen,
+gefilterd kijkje op de stand, zodat geheimen niet op de verkeerde telefoon
+belanden. Het koppelen loopt via de gratis PeerJS-signaalserver,
 het spelverkeer gaat rechtstreeks tussen de toestellen. Een eigen signaalserver
 kan met `?peer=host:poort` in de URL.
 
@@ -45,7 +49,7 @@ kan met `?peer=host:poort` in de URL.
 
 ```sh
 node --test flip7/test/engine.test.mjs tienduizend/test/engine.test.mjs \
-  regenwoezels/test/engine.test.mjs
+  regenwoezels/test/engine.test.mjs wartaal/test/engine.test.mjs
 ```
 
 Elk spel heeft zijn eigen `README.md` met de regels zoals de app ze toepast.

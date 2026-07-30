@@ -720,12 +720,19 @@ function bind() {
 
   const code = new URLSearchParams(location.search).get('join');
   if (code) {
-    $('code-input').value = code.toUpperCase().slice(0, 4);
+    const room = code.toUpperCase().slice(0, 4);
+    $('code-input').value = room;
     if ($('name-input').value) {
+      // Naam is al bekend: direct door naar verbinden.
       show('screen-join');
-      setJoinHint('Klaar om mee te doen aan kamer ' + code.toUpperCase() + '.');
+      setJoinHint('Klaar om mee te doen aan kamer ' + room + '.');
     } else {
-      toast('Vul je naam in en kies "Meedoen met een code".');
+      // Uitgenodigd via een link: maak duidelijk wat de volgende stap is.
+      document.querySelector('.tagline').textContent =
+        `Je bent uitgenodigd voor kamer ${room}. Vul je naam in en tik op "Meedoen met een code".`;
+      $('btn-join').classList.add('primary');
+      $('btn-host').classList.remove('primary');
+      $('name-input').focus();
     }
   }
 }

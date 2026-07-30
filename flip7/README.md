@@ -52,6 +52,12 @@ geschud als het deck leeg raakt.
 Statische site, geen build-stap. ES-modules, dus het moet via http(s) geopend
 worden (`file://` werkt niet).
 
+Open de map altijd **met** de afsluitende slash (`/flip7/`), want de pagina
+verwijst met relatieve paden naar `css/` en `js/`. De `vercel.json` in de root
+zet daarom `trailingSlash: true`, zodat `/flip7` netjes doorstuurt naar
+`/flip7/`. Op GitHub Pages gebeurt dat vanzelf; die config is daar dus onnodig
+maar onschadelijk.
+
 ```
 flip7/
   index.html          alle schermen

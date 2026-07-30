@@ -36,7 +36,8 @@ const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // zonder I/O/0/1
 export function randomCode(len = 4) {
   let out = '';
   const buf = new Uint8Array(len);
-  crypto.getRandomValues(buf);
+  if (globalThis.crypto?.getRandomValues) crypto.getRandomValues(buf);
+  else for (let i = 0; i < len; i++) buf[i] = Math.floor(Math.random() * 256);
   for (const b of buf) out += ALPHABET[b % ALPHABET.length];
   return out;
 }
